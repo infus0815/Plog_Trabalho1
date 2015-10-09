@@ -52,6 +52,13 @@ p2([]).
 game(Board-P1-P2-Nextplayer).
 
 /*prints*/
+printlinenumber(0,_).
+printlinenumber(X,Y) :- 
+	write('  '),write(Y),write('   '),
+	X1 is X - 1,
+	Y1 is Y + 1,
+	printlinenumber(X1,Y1).
+	
 printboardline(0).
 printboardline(X) :-
 	X > 0,
@@ -125,7 +132,7 @@ printline3([]).
 printline3([ L1 | L2 ]) :- 
 	printcell3(L1),
 	printline3(L2).
-		
+			
 printboard([],_).
 printboard( [L1 | L2],Letter) :- 
 	length(L1,X),
@@ -140,7 +147,8 @@ printgame([]).
 printgame( [L1 | L2]) :- 
 	nl,write('DOMINUP!'),nl,
 	length(L1,X),
-	nl,put_code(32),put_code(45),put_code(124),printboardline(X),put_code(45), nl,
+	nl,put_code(32),put_code(32),put_code(32),printlinenumber(X,1),nl,
+	put_code(32),put_code(45),put_code(124),printboardline(X),put_code(45), nl,
 	printboard([L1 | L2],65),nl.
 
 /*
