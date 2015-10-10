@@ -52,6 +52,10 @@ p2([]).
 game(Board-P1-P2-Nextplayer).
 
 /*prints*/
+upperscore :- put_code(175).
+space :- put_code(32).
+barra :- put_code(124).
+
 printlinenumber(0,_).
 printlinenumber(X,Y) :- 
 	write('  '),write(Y),write('   '),
@@ -73,16 +77,16 @@ printcell1([[],_,_]) :-
 	printblankcell.
 printcell1([[_H1|_T1],_V,[H2|_T2]]) :- 
 	H2 =:= 1,
-	put_code(124),put_code(175),put_code(175),put_code(175),put_code(175),put_code(124).
+	barra,upperscore,upperscore,upperscore,upperscore,barra.
 printcell1([[_H1|_T1],_V,[H2|_T2]]) :- 
 	H2 =:= 2,
-	put_code(124),put_code(175),put_code(175),put_code(175),put_code(124),put_code(124).
+	barra,upperscore,upperscore,upperscore,barra,barra.
 printcell1([[_H1|_T1],_V,[H2|_T2]]) :- 
 	H2 =:= 3,
-	put_code(175),put_code(175),put_code(175),put_code(175),put_code(124),put_code(124).
+	upperscore,upperscore,upperscore,upperscore,barra,barra.
 printcell1([[_H1|_T1],_V,[H2|_T2]]) :- 
 	H2 =:= 4,
-	put_code(124),put_code(32),put_code(32),put_code(32),put_code(124),put_code(124).
+	barra,space,space,space,barra,barra.
 
 printcell2([]).
 printcell2([[],_,_]) :- 
@@ -90,19 +94,19 @@ printcell2([[],_,_]) :-
 printcell2([[H1|T1],V,[H2|_T2]]) :- 
 	H2 =:= 1,
 	length([H1|T1],X),
-	put_code(124),write(V),put_char('-'),write(X),put_code(32),put_code(124).
+	barra,write(V),put_char('-'),write(X),space,barra.
 printcell2([[H1|T1],V,[H2|_T2]]) :- 
 	H2 =:= 2,
 	length([H1|T1],X),
-	put_code(124),write(V),put_char('-'),write(X),put_code(124),put_code(124).
+	barra,write(V),put_char('-'),write(X),barra,barra.
 printcell2([[H1|T1],V,[H2|_T2]]) :- 
 	H2 =:= 3,
 	length([H1|T1],X),
-	put_code(32),write(V),put_char('-'),write(X),put_code(124),put_code(124).
+	space,write(V),put_char('-'),write(X),barra,barra.
 printcell2([[H1|T1],V,[H2|_T2]]) :- 
 	H2 =:= 4,
 	length([H1|T1],X),
-	put_code(124),write(V),put_char('-'),write(X),put_code(124),put_code(124).
+	barra,write(V),put_char('-'),write(X),barra,barra.
 	
 printcell3([]).
 printcell3([[],_,_]) :- 
@@ -136,20 +140,64 @@ printline3([ L1 | L2 ]) :-
 printboard([],_).
 printboard( [L1 | L2],Letter) :- 
 	length(L1,X),
-	put_code(32),put_code(32),put_code(124),printline1(L1), nl,
-	put_code(32),put_code(Letter),put_code(124),printline2(L1), nl,
-	put_code(32),put_code(32),put_code(124),printline3(L1), nl,
-	put_code(32),put_code(45),put_code(124),printboardline(X),put_code(45),nl,
+	space,space,barra,printline1(L1), nl,
+	space,put_code(Letter),barra,printline2(L1), nl,
+	space,space,barra,printline3(L1), nl,
+	space,put_code(45),barra,printboardline(X),put_code(45),nl,
 	Letter1 is Letter + 1,
 	printboard(L2, Letter1).
+	
+printpiece1([]).
+printpiece1([_Id,_V1,_V2]) :- 
+	barra,upperscore,upperscore,upperscore,upperscore,barra,
+	upperscore,upperscore,upperscore,upperscore,barra.
+printpiece2([]).
+printpiece2([_Id,V1,V2]) :- 
+	write('| '),write(V1),write('  |  '),write(V2),write(' |').
+printpiece3([]).
+printpiece3([_Id,_V1,_V2]) :- 
+	write('|____|____|').
+
+printlinepiece1([]).
+printlinepiece1([H|T]) :-
+	printpiece1(H), space,
+	printlinepiece1(T).
+
+printlinepiece2([]).
+printlinepiece2([H|T]) :-
+	printpiece2(H),space,
+	printlinepiece2(T).
+	
+printlinepiece3([]).
+printlinepiece3([H|T]) :-
+	printpiece3(H),space,
+	printlinepiece3(T).
+	
+getnmembers([],_,_,_).
+getnmembers(LI,X,LF1,LF2) :- 
+	length(LF1, X),
+	append(LF1, LF2, LI).
+getnmembers(LI,_X,LI,[]).
+
+
+printplayer([]).	
+printplayer(L) :-
+	getnmembers(L,6,LT1,LT2),
+	printlinepiece1(LT1),nl,
+	printlinepiece2(LT1),nl,
+	printlinepiece3(LT1),nl,nl,
+	printplayer(LT2).
 
 printgame([]).
 printgame( [L1 | L2]) :- 
 	nl,write('DOMINUP!'),nl,
 	length(L1,X),
-	nl,put_code(32),put_code(32),put_code(32),printlinenumber(X,1),nl,
-	put_code(32),put_code(45),put_code(124),printboardline(X),put_code(45), nl,
+	nl,space,space,space,printlinenumber(X,1),nl,
+	space,put_code(45),barra,printboardline(X),put_code(45), nl,
 	printboard([L1 | L2],65),nl.
+	
+startgame :- printgame([ [ [ [], -1 , [] ], [ [], -1 , [] ], [ [], -1 , [] ] ], [ [ [1], 1 , [2] ], [ [2], 4 , [1] ], [ [1], 5 , [3] ] ], [ [ [5], 1 , [4] ], [ [], -1 , [] ], [ [], -1 , [] ] ] ]).    
+startplayer :- printplayer([ [1,0,0], [1,0,0], [1,0,0], [1,0,0], [1,0,0], [1,0,0], [1,0,0], [1,0,0], [1,0,0], [1,0,0], [1,0,0], [1,0,0], [1,0,0], [1,0,0], [1,0,0], [1,0,0], [1,0,0], [1,0,0], [1,0,0], [1,0,0] ]).
 
 /*
 printgame([ [ [ [], -1 , [] ], [ [], -1 , [] ], [ [], -1 , [] ] ], [ [ [1], 1 , [2] ], [ [2], 4 , [1] ], [ [1], 5 , [3] ] ], [ [ [5], 1 , [4] ], [ [], -1 , [] ], [ [], -1 , [] ] ] ]).    
