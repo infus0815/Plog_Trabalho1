@@ -41,31 +41,34 @@ piece(36,7,7).
 
 intro :- write('DOMINUP!'),nl.
 
+p1([1,3,5,7,9,11,13,15,17,19,21,23,25,27,29,31,33,35]).
+p2([2,4,6,8,10,12,14,16,18,20,22,24,26,28,30,32,34,36]).
+
 board( [
     [ [ [], -1 , [] ], [ [], -1 , [] ], [ [], -1 , [] ] ],
     [ [ [], -1 , [] ], [ [3], 4 , [1] ], [ [], -1 , [] ] ],
     [ [ [], -1 , [] ], [ [], -1 , [] ], [ [], -1 , [] ] ]
    ] ). /*empty board*/
 
-joga(J,Tab) :- 
-        %pecas(-1,0,_), pecas(0,1,_),
-        write('Jogador'), write(J),nl,
-        board(Tab).
+inicio :-
+        p1(L1),p2(L2),
+        board(Tab),
+        joga(0-L1-L2-Tab).
 
+joga(X-L1-L2-T) :-
+        printplayer(L1),nl, printplayer(L2),
+        passa(X,Y),
+        joga(Y-L3-L4-T).
 
-pecas1(N,L1,L2) :-
-        N1 is N+2,
-        append(L1,N1,L3),
-        pecas1(N1,L3,L2).
-pecas1(35,L,L).
+verificaGanha(L) :- length(L,X), X =:= 0.
 
+fim(L) :- verificaGanha(L), exit.
+fim(_).
 
+passa(1,2).
+passa(2,1). 
+        
 
-
-printPecas([]).
-printPecas([H|T]) :-
-        write(H),nl,
-        printPecas(T).
         
 
 inicio :- 
