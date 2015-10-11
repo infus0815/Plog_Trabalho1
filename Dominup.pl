@@ -160,17 +160,17 @@ printpiece3([_Id,_V1,_V2]) :-
 
 printlinepiece1([]).
 printlinepiece1([H|T]) :-
-	printpiece1(H), space,
+	space, space,printpiece1(H), 
 	printlinepiece1(T).
 
 printlinepiece2([]).
 printlinepiece2([H|T]) :-
-	printpiece2(H),space,
+	space,space,printpiece2(H),
 	printlinepiece2(T).
 	
 printlinepiece3([]).
 printlinepiece3([H|T]) :-
-	printpiece3(H),space,
+	space,space,printpiece3(H),
 	printlinepiece3(T).
 	
 getnmembers([],_,_,_).
@@ -189,14 +189,23 @@ printplayer(L) :-
 	printplayer(LT2).
 
 printgame([]).
-printgame( [L1 | L2]) :- 
+printgame([L1 | L2]-P1-_P2-_NextPlayer) :- 
 	nl,write('DOMINUP!'),nl,
 	length(L1,X),
 	nl,space,space,space,printlinenumber(X,1),nl,
 	space,put_code(45),barra,printboardline(X),put_code(45), nl,
-	printboard([L1 | L2],65),nl.
+	printboard([L1 | L2],65),nl,nl,
+	printplayer(P1).
 	
-startgame :- printgame([ [ [ [], -1 , [] ], [ [], -1 , [] ], [ [], -1 , [] ] ], [ [ [1], 1 , [2] ], [ [2], 4 , [1] ], [ [1], 5 , [3] ] ], [ [ [5], 1 , [4] ], [ [], -1 , [] ], [ [], -1 , [] ] ] ]).    
+startgame :- printgame([ 
+	[ [ [], -1 , [] ], [ [], -1 , [] ],[ [], -1 , [] ], [ [], -1 , [] ],[ [], -1 , [] ] ],
+	[ [ [], -1 , [] ], [ [], -1 , [] ],[ [], -1 , [] ], [ [], -1 , [] ],[ [], -1 , [] ] ],
+	[ [ [], -1 , [] ], [ [], -1 , [] ],[ [], -1 , [] ], [ [], -1 , [] ],[ [], -1 , [] ] ],
+	[ [ [], -1 , [] ], [ [], -1 , [] ],[ [], -1 , [] ], [ [], -1 , [] ],[ [], -1 , [] ] ],
+	[ [ [], -1 , [] ], [ [], -1 , [] ],[ [], -1 , [] ], [ [], -1 , [] ],[ [], -1 , [] ] ]
+	]-
+	[ [1,0,0],[3,1,1],[5,2,1],[7,3,0],[9,3,2],[11,4,0],[13,4,2],[15,4,4],[17,5,1],[19,5,3],[21,5,5],[23,6,1],[25,6,3],[27,6,5],[29,7,0],[31,7,2],[33,7,4],[35,7,6]]-
+	1-1).    
 startplayer :- printplayer([ [1,0,0], [1,0,0], [1,0,0], [1,0,0], [1,0,0], [1,0,0], [1,0,0], [1,0,0], [1,0,0], [1,0,0], [1,0,0], [1,0,0], [1,0,0], [1,0,0], [1,0,0], [1,0,0], [1,0,0], [1,0,0], [1,0,0], [1,0,0] ]).
 
 /*
