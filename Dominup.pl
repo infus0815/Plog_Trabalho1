@@ -35,7 +35,7 @@ piece(34,7,5).
 piece(35,7,6).
 piece(36,7,7).
 
-/*cada celula contem list[id.piece] valor list[orientaçao] */
+/*cada celula contem list[id.piece] valor list[orientacao] */
 board( [
     [ [ [], -1 , [] ], [ [], -1 , [] ], [ [], -1 , [] ] ],
     [ [ [], -1 , [] ], [ [3], 4 , [1] ], [ [], -1 , [] ] ],
@@ -46,7 +46,7 @@ board( [
 p1([]). 
 p2([]).
 
-/*contem o board,peças do p1 e p2, e o proximo jogador a jogar)*/
+/*contem o board,pecas do p1 e p2, e o proximo jogador a jogar)*/
 
 
 game(Board-P1-P2-Nextplayer).
