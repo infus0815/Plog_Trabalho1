@@ -189,12 +189,13 @@ printplayer(L) :-
 	printplayer(LT2).
 
 printgame([]).
-printgame([L1 | L2]-P1-_P2-_NextPlayer) :- 
+printgame([L1 | L2]-P1-_P2-CurrentPlayer) :- 
 	nl,write('DOMINUP!'),nl,
 	length(L1,X),
 	nl,space,space,space,printlinenumber(X,1),nl,
 	space,put_code(45),barra,printboardline(X),put_code(45), nl,
 	printboard([L1 | L2],65),nl,nl,
+	write('Player '),write(CurrentPlayer),write(' playing!'),nl,nl,
 	printplayer(P1).
 	
 startgame :- printgame([ 
