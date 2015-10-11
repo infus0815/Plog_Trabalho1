@@ -48,16 +48,19 @@ board( [
    ] ). /*empty board*/
 
 joga(J,Tab) :- 
-        %pecas(1,_), pecas(2,_),
+        %pecas(-1,0,_), pecas(0,1,_),
         write('Jogador'), write(J),nl,
         board(Tab).
 
-pecas(L) :- append([], [[1,0,0], [3,1,1]] ,L), 
-        printL(L).
 
-printL([H|_]) :- write(id(H)).
+pecas1(N,L1,L2) :-
+        N1 is N+2,
+        append(L1,N1,L3),
+        pecas1(N1,L3,L2).
+pecas1(35,L,L).
 
-id(X) :- piece(X,_,_).
+
+
 
 printPecas([]).
 printPecas([H|T]) :-
