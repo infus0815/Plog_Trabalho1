@@ -252,24 +252,24 @@ printgame([ [ [ [], -1 , [] ], [ [], -1 , [] ], [ [], -1 , [] ] ], [ [ [1], 1 , 
 */
 %%%
 coloca2([[[Q,_,E]|HT]|T],0,0,[Id,_,B],[[[Nq,Nw,Ne]|HT]|T],1) :-
-        append(Q,[Id],Nq),
-        append(E,[3],Ne),
+        append([Id],Q,Nq),
+        append([1],E,Ne),
         Nw is B.
 %
 coloca2([[[Q,_,E]|HT]|T],0,0,[Id,A,_],[[[Nq,Nw,Ne]|HT]|T],3) :-
-        append(Q,[Id],Nq),
-        append(E,[3],Ne),
+        append([Id],Q,Nq),
+        append([3],E,Ne),
         Nw is A.
 %%
 coloca([[[Q,_,E]|HT]|T],0,0,[Id,A,B],[[[Nq,Nw,Ne]|HR]|R],1) :-
-        append(Q,[Id],Nq),
-        append(E,[1],Ne),
+        append([Id],Q,Nq),
+        append([1],E,Ne),
         Nw is A,
         coloca2([HT|T],0,0,[Id,A,B],[HR|R],1).
 %
 coloca([[[Q,_,E]|HT]|T],0,0,[Id,A,B],[[[Nq,Nw,Ne]|HR]|R],3) :-
-        append(Q,[Id],Nq),
-        append(E,[1],Ne),
+        append([Id],Q,Nq),
+        append([1],E,Ne),
         Nw is B,
         coloca2([HT|T],0,0,[Id,A,B],[HR|R],3).
 %%%
@@ -296,6 +296,5 @@ coloca([H|T],X,Y,[Id,A,B],[H|R],3) :-
         Ny is Y-1,
         coloca(T,X,Ny,[Id,A,B],R,3).
 %%%
-putPiece(T,X,Y,[Id,A,B],O,Nt) :- 
-        length(T,Tam), X =< sqrt(Tam),  Y =< sqrt(Tam),
+putPiece(T,X,Y,[Id,A,B],O,Nt) :-
         coloca(T,X,Y,[Id,A,B],Nt,O).
