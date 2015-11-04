@@ -187,14 +187,23 @@ printplayer(L) :-
         printplayer(LT2).
 
 printgame([]).
-printgame([L1 | L2]-P1-_P2-CurrentPlayer) :- 
+printgame([L1 | L2]-P1-_P2-1) :-
         nl,write('DOMINUP!'),nl,
         length(L1,X),
         nl,space,space,space,printlinenumber(X,1),nl,
         space,put_code(45),barra,printboardline(X),put_code(45), nl,
         printboard([L1 | L2],65),nl,nl,
-        write('Player '),write(CurrentPlayer),write(' playing!'),nl,nl,
+        write('Player '),write(1),write(' playing!'),nl,nl,
         printplayer(P1).
+printgame([L1 | L2]-_P1-P2-2) :-
+        nl,write('DOMINUP!'),nl,
+        length(L1,X),
+        nl,space,space,space,printlinenumber(X,1),nl,
+        space,put_code(45),barra,printboardline(X),put_code(45), nl,
+        printboard([L1 | L2],65),nl,nl,
+        write('Player '),write(2),write(' playing!'),nl,nl,
+        printplayer(P2).
+
 
 % fim de prints
 /*list de pieces*/
@@ -218,9 +227,9 @@ startboard([ [ [ [], -1 , [] ], [ [], -1 , [] ],[ [], -1 , [] ], [ [], -1 , [] ]
 startgame :- 
         p1(L1), p2(L2), 
         startboard(B1),
-        putPiece(B1,1,1,[5,2,1],1,Nb),
+        putPiece(B1,1,1,[5,2,1],3,Nb),
         %printgame(B1-L1-L2-1).
-        printgame(Nb-L1-L2-2). 
+        printgame(Nb-L1-L2-1). 
  %       joga(B1-L1-L2-1).
 
 %joga([L1 | L2]-P1-_P2-CurrentPlayer) :-
@@ -241,16 +250,29 @@ midgame0 :- printgame([
 /*
 printgame([ [ [ [], -1 , [] ], [ [], -1 , [] ], [ [], -1 , [] ] ], [ [ [1], 1 , [2] ], [ [2], 4 , [1] ], [ [1], 5 , [3] ] ], [ [ [5], 1 , [4] ], [ [], -1 , [] ], [ [], -1 , [] ] ] ]).    
 */
+%%%
 coloca2([[[Q,_,E]|HT]|T],0,0,[Id,_,B],[[[Nq,Nw,Ne]|HT]|T],1) :-
         append(Q,[Id],Nq),
         append(E,[3],Ne),
         Nw is B.
-
+%
+coloca2([[[Q,_,E]|HT]|T],0,0,[Id,A,_],[[[Nq,Nw,Ne]|HT]|T],3) :-
+        append(Q,[Id],Nq),
+        append(E,[3],Ne),
+        Nw is A.
+%%
 coloca([[[Q,_,E]|HT]|T],0,0,[Id,A,B],[[[Nq,Nw,Ne]|HR]|R],1) :-
         append(Q,[Id],Nq),
         append(E,[1],Ne),
         Nw is A,
         coloca2([HT|T],0,0,[Id,A,B],[HR|R],1).
+%
+coloca([[[Q,_,E]|HT]|T],0,0,[Id,A,B],[[[Nq,Nw,Ne]|HR]|R],3) :-
+        append(Q,[Id],Nq),
+        append(E,[1],Ne),
+        Nw is B,
+        coloca2([HT|T],0,0,[Id,A,B],[HR|R],3).
+%%%
 
 coloca([[H|HT]|T],X,0,[Id,A,B],[[H|HR]|R],1) :-
         X >= 0,
@@ -262,7 +284,18 @@ coloca([H|T],X,Y,[Id,A,B],[H|R],1) :-
         Y >= 0,
         Ny is Y-1,
         coloca(T,X,Ny,[Id,A,B],R,1).
-
+%
+coloca([[H|HT]|T],X,0,[Id,A,B],[[H|HR]|R],3) :-
+        X >= 0,
+        Nx is X-1,
+        coloca([HT|T],Nx,0,[Id,A,B],[HR|R],3).
+        
+coloca([H|T],X,Y,[Id,A,B],[H|R],3) :-
+        X >= 0,
+        Y >= 0,
+        Ny is Y-1,
+        coloca(T,X,Ny,[Id,A,B],R,3).
+%%%
 putPiece(T,X,Y,[Id,A,B],O,Nt) :- 
         length(T,Tam), X =< sqrt(Tam),  Y =< sqrt(Tam),
         coloca(T,X,Y,[Id,A,B],Nt,O).
