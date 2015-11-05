@@ -186,7 +186,18 @@ startgame :-                                    %%%%%%%%%%%%%%%%%
         p1(L1), p2(L2), 
         startboard(B1),
         nl,write('DOMINUP!'),nl,
-        joga(B1,1,L1,L2,0).
+        printgame(B1-L1-L2-2),
+        nl,write('o Player 2 comeca a jogar com a peça 7-7 no centro da area de jogo:'),nl,
+        write('-> orientacao? (-1. -> sair)'),nl,
+        name('c3',[H|T]),
+        Line is H-96,
+        aToN(T,Column),
+        read(Or),  verificaFim(Or), nl,
+        getPiecePlayer(2,L1,L2,18,Piece),
+        verEmLista(2,L1,L2,Piece,P11,P22,X),
+        putPiece(B1,Line,Column,Piece,Or,Nb,X),
+        player(1,2,NPlayer),
+        joga(Nb,NPlayer,P11,P22,0).
 
 joga(_Board, _CPlayer, _P1, _P2,-1).    % quit
 joga(_Board, _CPlayer, _P1, _P2,1).     % ganha 1
@@ -204,7 +215,7 @@ joga(Board, CPlayer, P1, P2,0) :-                 %%%%%%%%%%%%%%%%%
         getPiecePlayer(CPlayer,P1,P2,NPiece,Piece),
         verEmLista(CPlayer,P1,P2,Piece,P11,P22,X),
         putPiece(Board,Line,Column,Piece,Or,Nb,X),
-        player(1,CPlayer,NPlayer),
+        player(X,CPlayer,NPlayer),
         %joga(Nb, NPlayer, P11, P22,0).
         %break,
         verificaGanha(P11,P22,Flag),
