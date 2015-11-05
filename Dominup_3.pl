@@ -193,27 +193,30 @@ joga(_Board, _CPlayer, _P1, _P2,1).     % ganha 1
 joga(_Board, _CPlayer, _P1, _P2,2).     % ganha 2
 joga(Board, CPlayer, P1, P2,0) :-                 %%%%%%%%%%%%%%%%%
         printgame(Board-P1-P2-CPlayer), nl,
-        write('-> qual a peca que queres jogar?'),nl,
-        read(NPiece), nl,
-        write('-> onde?'),nl,
-        read(BuffPlace), nl, name(BuffPlace,[H|T]),
+        write('-> qual a peca que queres jogar? (-1. -> sair)'),nl,
+        read(NPiece), verificaFim(NPiece),nl,
+        write('-> onde? (-1. -> sair)'),nl,
+        read(BuffPlace), verificaFim(BuffPlace), nl, name(BuffPlace,[H|T]),
         Line is H-96,
         aToN(T,Column),
-        write('-> orientacao?'),nl,
-        read(Or), nl,
+        write('-> orientacao? (-1. -> sair)'),nl,
+        read(Or),  verificaFim(Or), nl,
         getPiecePlayer(CPlayer,P1,P2,NPiece,Piece),
         verEmLista(CPlayer,P1,P2,Piece,P11,P22,X),
         putPiece(Board,Line,Column,Piece,Or,Nb,X),
         player(1,CPlayer,NPlayer),
         %joga(Nb, NPlayer, P11, P22,0).
-        write('-> quer sair? <s> <n>'),nl,
-        read(Q),nl,
-        quit(Q,Flag),
+        %break,
+        verificaGanha(P11,P22,Flag),
         joga(Nb, NPlayer, P11, P22,Flag).
 
 
-quit('s',-1).
-quit('n',0).
+verificaGanha([],_L2,1).
+verificaGanha(_L1,[],2).
+verificaGanha(_,_,0).
+
+verificaFim(-1) :- !,break.
+verificaFim(_).
 
 % getPiecePlayer(Pl,L1,L2,X,Piece)              %%%%%%%%%%%%%%%%%
 getPiecePlayer(1,L1,_L2,X,Piece) :-
