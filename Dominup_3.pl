@@ -186,9 +186,12 @@ startgame :-                                    %%%%%%%%%%%%%%%%%
         p1(L1), p2(L2), 
         startboard(B1),
         nl,write('DOMINUP!'),nl,
-        joga(B1,1,L1,L2).
+        joga(B1,1,L1,L2,0).
 
-joga(Board, CPlayer, P1, P2) :-                 %%%%%%%%%%%%%%%%%
+joga(_Board, _CPlayer, _P1, _P2,-1).    % quit
+joga(_Board, _CPlayer, _P1, _P2,1).     % ganha 1
+joga(_Board, _CPlayer, _P1, _P2,2).     % ganha 2
+joga(Board, CPlayer, P1, P2,0) :-                 %%%%%%%%%%%%%%%%%
         printgame(Board-P1-P2-CPlayer), nl,
         write('-> qual a peca que queres jogar?'),nl,
         read(NPiece), nl,
@@ -202,7 +205,15 @@ joga(Board, CPlayer, P1, P2) :-                 %%%%%%%%%%%%%%%%%
         verEmLista(CPlayer,P1,P2,Piece,P11,P22,X),
         putPiece(Board,Line,Column,Piece,Or,Nb,X),
         player(1,CPlayer,NPlayer),
-        joga(Nb, NPlayer, P11, P22).
+        %joga(Nb, NPlayer, P11, P22,0).
+        write('-> quer sair? <s> <n>'),nl,
+        read(Q),nl,
+        quit(Q,Flag),
+        joga(Nb, NPlayer, P11, P22,Flag).
+
+
+quit('s',-1).
+quit('n',0).
 
 % getPiecePlayer(Pl,L1,L2,X,Piece)              %%%%%%%%%%%%%%%%%
 getPiecePlayer(1,L1,_L2,X,Piece) :-
