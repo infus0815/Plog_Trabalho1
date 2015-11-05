@@ -196,7 +196,7 @@ startgame :-                                    %%%%%%%%%%%%%%%%%
         getPiecePlayer(2,L1,L2,18,Piece),
         verEmLista(2,L1,L2,Piece,P11,P22,X),
         putPiece(B1,Line,Column,Piece,Or,Nb,X),
-        player(1,2,NPlayer),
+        player(X,2,NPlayer),
         joga(Nb,NPlayer,P11,P22,0).
 
 joga(_Board, _CPlayer, _P1, _P2,-1).    % quit
