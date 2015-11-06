@@ -186,8 +186,25 @@ startgame :-                                    %%%%%%%%%%%%%%%%%
         p1(L1), p2(L2), 
         startboard(B1),
         nl,write('DOMINUP!'),nl,
+        write('Humano:Humano (0), Humano:Computador (1), Computador:Computador (2)'),nl,
+        read(Ch),
+        startgame(B1,L1,L2,Ch).
+startgame(B1,L1,L2,2) :-
         printgame(B1-L1-L2-2),
-        nl,write('o Player 2 comeca a jogar com a peça 7-7 no centro da area de jogo:'),nl,
+        nl,write('o Player 2 comeca a jogar com a peça 7-7 no centro da area de jogo:'),nl,nl,
+        write('-> orientacao? (-1. -> sair)'),nl,
+        name('c3',[H|T]),
+        Line is H-96,
+        aToN(T,Column),
+        verificaFim(0), nl,
+        getPiecePlayer(2,L1,L2,18,Piece),
+        verEmLista(2,L1,L2,Piece,P11,P22,X),
+        putPiece(B1,Line,Column,Piece,0,Nb,X),
+        player(X,2,NPlayer),
+        joga(Nb,NPlayer,P11,P22,0).
+startgame(B1,L1,L2,_) :-
+        printgame(B1-L1-L2-2),
+        nl,write('o Player 2 comeca a jogar com a peça 7-7 no centro da area de jogo:'),nl,nl,
         write('-> orientacao? (-1. -> sair)'),nl,
         name('c3',[H|T]),
         Line is H-96,
@@ -199,34 +216,39 @@ startgame :-                                    %%%%%%%%%%%%%%%%%
         player(X,2,NPlayer),
         joga(Nb,NPlayer,P11,P22,0).
 
+        
 joga(_Board, _CPlayer, _P1, _P2,-1).    % quit
-joga(_Board, _CPlayer, _P1, _P2,1).     % ganha 1
-joga(_Board, _CPlayer, _P1, _P2,2).     % ganha 2
+joga(_Board, _CPlayer, _P1, _P2,1) :- write('O PLAYER 1 GANHOU O JOGO!!').     % ganha 1
+joga(_Board, _CPlayer, _P1, _P2,2) :- write('O PLAYER 2 GANHOU O JOGO!!').     % ganha 2
 joga(Board, CPlayer, P1, P2,0) :-                 %%%%%%%%%%%%%%%%%
         printgame(Board-P1-P2-CPlayer), nl,
         write('-> qual a peca que queres jogar? (-1. -> sair)'),nl,
         read(NPiece), verificaFim(NPiece),nl,
+        write('-> orientacao? (0 - hor, 1 - vert, 2 - hor switch, 3 - vert switch) (-1. -> sair)'),nl,
+        read(Or),  verificaFim(Or), nl,
         write('-> onde? (-1. -> sair)'),nl,
         read(BuffPlace), verificaFim(BuffPlace), nl, name(BuffPlace,[H|T]),
         Line is H-96,
         aToN(T,Column),
-        write('-> orientacao? (-1. -> sair)'),nl,
-        read(Or),  verificaFim(Or), nl,
         getPiecePlayer(CPlayer,P1,P2,NPiece,Piece),
         verEmLista(CPlayer,P1,P2,Piece,P11,P22,X),
-        putPiece(Board,Line,Column,Piece,Or,Nb,X),
+        getOr(Piece,Or,NnPiece, NOr),
+        putPiece(Board,Line,Column,NnPiece,NOr,Nb,X),
         player(X,CPlayer,NPlayer),
-        %joga(Nb, NPlayer, P11, P22,0).
-        %break,
         verificaGanha(P11,P22,Flag),
         joga(Nb, NPlayer, P11, P22,Flag).
 
+%getOr(Piece,Or,NPiece,NOr).
+getOr(Piece,0,Piece,0).                         %%%%%%%%%%%%%
+getOr(Piece,1,Piece,1).
+getOr(Piece,2,NPiece,0) :- rotatePiece(Piece, NPiece).
+getOr(Piece,3,NPiece,1) :- rotatePiece(Piece, NPiece).
 
-verificaGanha([],_L2,1).
+verificaGanha([],_L2,1).                        %%%%%%%%%%%%%%%
 verificaGanha(_L1,[],2).
 verificaGanha(_,_,0).
 
-verificaFim(-1) :- !,break.
+verificaFim(-1) :- !,break.                     %%%%%%%%%%%%%%%%%
 verificaFim(_).
 
 % getPiecePlayer(Pl,L1,L2,X,Piece)              %%%%%%%%%%%%%%%%%
@@ -314,8 +336,8 @@ rotatePiece(Piece,NewPiece):-
         V2 is mod(Piece,10),
         NewPiece is V2*10+V1.
 
-putPiece(_Board,_Line,_Column,_Piece,_Orientation,_NewBoard,0). 
-putPiece(_Board,_Line,_Column,_Piece,_Orientation,_NewBoard,0).
+
+putPiece(Board,_Line,_Column,_Piece,_Orientation,Board,0).
 putPiece(Board,Line,Column,Piece,Orientation,NewBoard,1) :- 
         Orientation =:= 0,
         Line1 is Line - 1,
