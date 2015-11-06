@@ -166,7 +166,7 @@ printplayer(L,Number) :-
         printplayer(LT2,NewNumber).
 
 printgame([]).
-printgame([L1 | L2]-P1-_P2-1) :-                %%%%%%%%%%%%%%%%%
+printgame([L1 | L2]-P1-_P2-1) :-                
     length(L1,X),
     nl,space,space,space,printlinenumber(X,1),nl,
     space,put_code(45),barra,printboardline(X),put_code(45), nl,
@@ -206,11 +206,12 @@ startgame(B1,L1,L2,2) :-
         Line is H-96,
         aToN(T,Column),
         verificaFim(0), nl,
-        getPiecePlayer(2,L1,L2,18,Piece),
-        verEmLista(2,L1,L2,Piece,P11,P22,X),
+        getPiecePlayer(2,L1,L2,18,Piece,X),
+        verEmLista(2,L1,L2,Piece,P11,P22),
         putPiece(B1,Line,Column,Piece,0,Nb,X),
+        checkBoardSize1(Nb,Nnb),
         player(X,2,NPlayer),
-        joga(Nb,NPlayer,P11,P22,0).
+        joga(Nnb,NPlayer,P11,P22,0).
 startgame(B1,L1,L2,_) :-
         printgame(B1-L1-L2-2),
         nl,write('o Player 2 comeca a jogar com a peça 7-7 no centro da area de jogo:'),nl,nl,
@@ -222,13 +223,14 @@ startgame(B1,L1,L2,_) :-
         getPiecePlayer(2,L1,L2,18,Piece,X),
         verEmLista(2,L1,L2,Piece,P11,P22),
         putPiece(B1,Line,Column,Piece,Or,Nb,X),
+        checkBoardSize1(Nb,Nnb),
         player(X,2,NPlayer),
-        joga(Nb,NPlayer,P11,P22,0).
+        joga(Nnb,NPlayer,P11,P22,0).
 
 joga(_Board, _CPlayer, _P1, _P2,-1).    % quit
 joga(_Board, _CPlayer, _P1, _P2,1) :- write('O PLAYER 1 GANHOU O JOGO!!').     % ganha 1
 joga(_Board, _CPlayer, _P1, _P2,2) :- write('O PLAYER 2 GANHOU O JOGO!!').     % ganha 2
-joga(Board, CPlayer, P1, P2,0) :-                 %%%%%%%%%%%%%%%%%
+joga(Board, CPlayer, P1, P2,0) :-                 
         printgame(Board-P1-P2-CPlayer), nl,
     write('-> qual a peca que queres jogar? (-1. -> sair)'),nl,
     read(NPiece), verificaFim(NPiece),nl,
@@ -241,12 +243,14 @@ joga(Board, CPlayer, P1, P2,0) :-                 %%%%%%%%%%%%%%%%%
     getPiecePlayer(CPlayer,P1,P2,NPiece,Piece,X),
     verEmLista(CPlayer,P1,P2,Piece,P11,P22),
     getOr(Piece,Or,NnPiece, NOr),
-        verifyPlay(Board,Line,Column,NnPiece,NOr,1,Y),
+        verifyPlay(Board,Line,Column,NnPiece,NOr,0,Y),
         XY is X/\Y,
+       %verifyExpandplay(Board,Line,Column,NOr,_D),
     putPiece(Board,Line,Column,NnPiece,NOr,Nb,XY),
+    checkBoardSize1(Nb,Nnb),
     player(XY,CPlayer,NPlayer),
     verificaGanha(P11,P22,Flag),
-    joga(Nb, NPlayer, P11, P22,Flag).
+    joga(Nnb, NPlayer, P11, P22,Flag).
         
         
 verificaGanha([],_L2,1).
@@ -259,12 +263,12 @@ verificaFim(_).
 
 
 %getOr(Piece,Or,NPiece,NOr).
-getOr(Piece,0,Piece,0).                         %%%%%%%%%%%%%
+getOr(Piece,0,Piece,0).                         
 getOr(Piece,1,Piece,1).
 getOr(Piece,2,NPiece,0) :- rotatePiece(Piece, NPiece).
 getOr(Piece,3,NPiece,1) :- rotatePiece(Piece, NPiece).
 
-% getPiecePlayer(Pl,L1,L2,X,Piece)              %%%%%%%%%%%%%%%%%
+% getPiecePlayer(Pl,L1,L2,X,Piece)              
 getPiecePlayer(1,L1,_L2,X,Piece,1) :-
     X > 0,
     X1 is X - 1,
@@ -297,7 +301,7 @@ delete_one(X,L,L1) :-                           %%%%%%%% AULA PRATICA - DELETE O
     append(A,[X|B],L),
     append(A,B,L1).
 
-%verEmLista(CP,L1,L2,E,L,1,L11,L22)             %%%%%%%%%%%%%%%%%
+%verEmLista(CP,L1,L2,E,L,1,L11,L22)            
 verEmLista(1,L1,L2,E,L,L2) :- !,delete_one(E,L1,L).   
 verEmLista(2,L1,L2,E,L1,L) :- !,delete_one(E,L2,L).
 verEmLista(1,L1,L2,E,L,L2) :- !,not(delete_one(E,L1,L)).
@@ -402,14 +406,14 @@ checkBoardSize4([H|T],NewBoard):-
         checkBoardSize4(NewBoard1,NewBoard).
 
         
-verifyPlay([H|T],Line,Column,Piece,Orientation,0,1) :- %%Type expand%%
+verifyPlay([H|T],Line,Column,_Piece,Orientation,0,1) :- %%Type expand%%
         length([H|T],X),
         Line < X,
         Line > 0,
         length(H,Y),
         Column < Y,
         Y > 0,
-        verifyExpandplay([H|T],Line,Column,Piece,Orientation).
+        verifyExpandplay([H|T],Line,Column,Orientation).                        %%%%%%%%%%%%%%%%%%%%%%%
 verifyPlay([H|T],Line,Column,Piece,Orientation,Type,1) :-  %%Type stack%%%
         Type > 0,
         length([H|T],X),
@@ -454,12 +458,56 @@ verifyStackplay(Board,Line,Column,Piece,Orientation) :-
         P2 =:= V2.
 
 
-verifyExpandplay(Board,Line,Column,Piece,Orientation) :- 
-        append(L1,[H1|[H2|_]],Board).
+
+%verifyExpandplay(Board,Line,Column,Piece,Orientation)                  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+verifyExpandplay(Board,Line,Column,Orientation) :-
+        %X is Column-1,
+        %Y is Line-1,
+        %length(L,Y),
+        %append(L,[H|_],Board),
+        %length(H1,X),
+        %append(H1,[HH|_],H),            %% HH coordenada da minha peca
+
+        X1 is Column-1,
+        Y1 is Line-2,
+        length(L1,Y1),
+        append(L1,[Hh1|_],Board),
+        length(H2,X1),
+        append(H2,[HH1|_],Hh1),            %% HH1 coordenada da peca cima 
+        compOr(HH1,Orientation,A),
+
+        X2 is Column-1,
+        Y2 is Line,
+        length(L2,Y2),
+        append(L2,[Hh2|_],Board),
+        length(H3,X2),
+        append(H3,[HH2|_],Hh2),            %% HH2 coordenada da peca baixo 
+        compOr(HH2,Orientation,B),
+
+        X3 is Column-2,
+        Y3 is Line-1,
+        length(L3,Y3),
+        append(L3,[Hh3|_],Board),
+        length(H4,X3),
+        append(H4,[HH3|_],Hh3),            %% HH3 coordenada da peca esq 
+        compOr(HH3,Orientation,C),
+
+        X4 is Column,
+        Y4 is Line-1,
+        length(L4,Y4),
+        append(L4,[Hh4|_],Board),
+        length(H5,X4),
+        append(H5,[HH4|_],Hh4),            %% HH4 coordenada da peca dir 
+        compOr(HH4,Orientation,D),
         
+        X is A\/B\/C\/D,
+        nl,write('VERIFY EXPAND PLAY'),write(X),nl,nl,
+        X =:= 1.
+        %append(L1,[H1|[H2|_]],Board).
 
 
-
+compOr([_,_,[X|_]],Z,1) :- Z is mod(X,2).                       %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+compOr([_,_,_],_,0).
 
 putPiece(Board,_Line,_Column,_Piece,_Orientation,Board,0). 
 putPiece(Board,Line,Column,Piece,Orientation,NewBoard,1) :- 
