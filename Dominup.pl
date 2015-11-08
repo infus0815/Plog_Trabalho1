@@ -248,10 +248,10 @@ joga(Board, CPlayer, P1, P2,0) :-
     verifyPlay(Board,Line,Column,NnPiece,NOr,Count,Y),
     XY is X/\Y,
     verEmLista(CPlayer,P1,P2,Piece,P11,P22,XY),
-    %verifyExpandplay(Board,Line,Column,NOr,_D),
+    
     putPiece(Board,Line,Column,NnPiece,NOr,Nb,XY),
     checkBoardSize1(Nb,Nnb),
-    player(XY,CPlayer,NPlayer),
+    player(XY,CPlayer,NPlayer,Count),
     verificaGanha(P11,P22,Flag),
     joga(Nnb, NPlayer, P11, P22,Flag).
 	
@@ -314,13 +314,15 @@ delete_one(X,L,L1) :-                           %%%%%%%% AULA PRATICA - DELETE O
 %verEmLista(CP,L1,L2,E,L,1,L11,L22)             %%%%%%%%%%%%%%%%%
 verEmLista(1,L1,L2,E,L,L2,1) :- delete_one(E,L1,L).   
 verEmLista(2,L1,L2,E,L1,L,1) :- delete_one(E,L2,L).
-verEmLista(_,_,_,_,_,_,0).
+verEmLista(_,L1,L2,_,L1,L2,0).
 
 
-player(0,1,1).                                  %%%%%%%%% nao muda
-player(0,2,2).                                  %%%%%%%%% nao muda
-player(1,1,2).                                  %%%%%%%%% muda player 1 -> 2
-player(1,2,1).                                  %%%%%%%%% muda player 2 -> 1
+player(0,1,1,_Count).                                  %%%%%%%%% nao muda
+player(0,2,2,_Count). 
+player(1,1,2,0).                                  %%%%%%%%% muda player 1 -> 2
+player(1,2,1,0).                                  %%%%%%%%% muda player 2 -> 1
+player(1,1,1,_Count).                                  %%%%%%%%% nao muda
+player(1,2,2,_Count).                                   %%%%%%%%% nao muda
 
 aToN([],Final,Final).                           %%%%%% ascii to number
 aToN([H|T],Temp,Final):-
@@ -562,10 +564,8 @@ verifyExpandplay(Board,Line,Column,Orientation) :-
 	Line1 is Line + 1,
 	Column1 is Column,
 	getCell(Board,Line1,Column1,Cell1),
-	write('ola'),nl,
 	compareEmpty(Cell,[[],-1,[]]),
 	compareEmpty(Cell1,[[],-1,[]]),
-	write('ola'),nl,
 	C1 is Column,
 	L1 is Line - 1,
 	verifyExpand(Board,L1,C1,Orientation,R1),
