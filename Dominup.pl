@@ -1,5 +1,7 @@
 :-use_module(library(lists)).
 
+%%%%% Inits %%%%%%
+
 startboard([ [ [ [], -1 , [] ], [ [], -1 , [] ],[ [], -1 , [] ], [ [], -1 , [] ],[ [], -1 , [] ] ],
              [ [ [], -1 , [] ], [ [], -1 , [] ],[ [], -1 , [] ], [ [], -1 , [] ],[ [], -1 , [] ] ],
              [ [ [], -1 , [] ], [ [], -1 , [] ],[ [], -1 , [] ], [ [], -1 , [] ],[ [], -1 , [] ] ],
@@ -9,8 +11,8 @@ startboard([ [ [ [], -1 , [] ], [ [], -1 , [] ],[ [], -1 , [] ], [ [], -1 , [] ]
 p1([0,11,21,30,32,40,42,44,51,53,55,61,63,65,70,72,74,76]). 
 p2([10,20,22,31,33,41,43,50,52,54,60,62,64,66,71,73,75,77]).
 
+%%%%% Prints %%%%%%%%
 
-/*prints*/
 upperscore :- put_code(175).
 space :- put_code(32).
 barra :- put_code(124).
@@ -173,7 +175,7 @@ printplayer(L,Number) :-
 	printplayer(LT2,NewNumber).
 
 printgame([]).
-printgame([L1 | L2]-P1-_P2-1) :-                %%%%%%%%%%%%%%%%%
+printgame([L1 | L2]-P1-_P2-1) :-           
     length(L1,X),
     nl,space,space,space,printlinenumber(X,1),nl,
     space,put_code(45),barra,printboardline(X),put_code(45), nl,
@@ -187,18 +189,20 @@ printgame([L1 | L2]-_P1-P2-2) :-
     printboard([L1 | L2],97),nl,nl,
     write('Player '),write(2),write(' playing!'),nl,nl,
     printplayer(P2,1).
-	
-/*startgame :- 
-        p1(L1), p2(L2), 
-        startboard(B1),
-        rotatePiece(10,P),
-        putPiece(B1,4,1,P,1,Nb),
-		verifyStackplay(Nb,4,1,P,1,_F),
-        %checkBoardSize1(Nb,B2),
-        printgame(Nb-L1-L2-1). */
 		
-		
-startgame :-                                    %%%%%%%%%%%%%%%%%
+printjogada(Line,Column,Piece,Orientation) :-
+	nl,write('Jogada: '),nl,
+	write('Peca - '),write(Piece),nl,
+	Line1 is Line + 96,
+	write('Linha - '),put_code(Line1),nl,
+	write('Coluna - '),write(Column),nl,
+	write('Orientacao - '),write(Orientation),nl,nl.
+
+
+%%%%%%%% Game %%%%%%
+
+
+startgame :-                        
         p1(L1), p2(L2),
         startboard(B1),
         nl,write('DOMINUP!'),nl,
@@ -207,19 +211,39 @@ startgame :-                                    %%%%%%%%%%%%%%%%%
         startgame(B1,L1,L2,Ch).
 startgame(B1,L1,L2,2) :-
         printgame(B1-L1-L2-2),
-        nl,write('o Player 2 comeca a jogar com a peça 7-7 no centro da area de jogo:'),nl,nl,
-        write('-> orientacao? (-1. -> sair)'),nl,
+        nl,write('o Player 2 comeca a jogar com a peca 7-7 no centro da area de jogo:'),nl,nl,
         name('c3',[H|T]),
         Line is H-96,
         aToN(T,Column),
         verificaFim(0), nl,
-        getPiecePlayer(2,L1,L2,18,Piece),
+        getPiecePlayer(2,L1,L2,18,Piece,X),
         verEmLista(2,L1,L2,Piece,P11,P22,X),
         putPiece(B1,Line,Column,Piece,0,Nb,X),
-		checkBoardSize1(Nb,NNb),
+	checkBoardSize1(Nb,NNb),
         player(X,2,NPlayer,0),
-        joga(NNb,NPlayer,P11,P22,0).
-startgame(B1,L1,L2,_) :-
+        write('CPU Playing'),nl,nl,
+        write('Introduz 1. para continuar'),nl,
+        printjogada(Line,Column,Piece,0),
+   	read(_),
+        joga(NNb-NPlayer-P11-P22,0,3).
+startgame(B1,L1,L2,1) :-
+        printgame(B1-L1-L2-2),
+        nl,write('o Player 2 comeca a jogar com a peca 7-7 no centro da area de jogo:'),nl,nl,
+        name('c3',[H|T]),
+        Line is H-96,
+        aToN(T,Column),
+        verificaFim(0), nl,
+        getPiecePlayer(2,L1,L2,18,Piece,X),
+        verEmLista(2,L1,L2,Piece,P11,P22,X),
+        putPiece(B1,Line,Column,Piece,0,Nb,X),
+	checkBoardSize1(Nb,NNb),
+        player(X,2,NPlayer,0),
+        write('CPU Playing'),nl,nl,
+        printjogada(Line,Column,Piece,0),
+        write('Introduz 1. para continuar'),nl,
+   	read(_),
+        joga(NNb-NPlayer-P11-P22,0,1).
+startgame(B1,L1,L2,0) :-
         printgame(B1-L1-L2-2),
         nl,write('o Player 2 comeca a jogar com a peça 7-7 no centro da area de jogo:'),nl,nl,
         write('-> orientacao? (-1. -> sair)'),nl,
@@ -230,43 +254,38 @@ startgame(B1,L1,L2,_) :-
         getPiecePlayer(2,L1,L2,18,Piece,X),
         verEmLista(2,L1,L2,Piece,P11,P22,X),
         putPiece(B1,Line,Column,Piece,Or,Nb,X),
-		checkBoardSize1(Nb,NNb),
+	checkBoardSize1(Nb,NNb),
         player(X,2,NPlayer,0),
-        joga(NNb,NPlayer,P11,P22,0).
+        printjogada(Line,Column,Piece,Or),
+        joga(NNb-NPlayer-P11-P22,0,0).
 
-joga(_Board, _CPlayer, _P1, _P2,-1).    % quit
-joga(_Board, _CPlayer, _P1, _P2,1) :- write('O PLAYER 1 GANHOU O JOGO!!').     % ganha 1
-joga(_Board, _CPlayer, _P1, _P2,2) :- write('O PLAYER 2 GANHOU O JOGO!!').     % ganha 2
-joga(Board, CPlayer, P1, P2,0) :-            
-    printgame(Board-P1-P2-CPlayer), nl,
-    verifyNStackplay(Board,CPlayer,P1,P2,Count),
-    write('Jogadas de stack possiveis '),write(Count),nl,
-    write('-> qual a peca que queres jogar? (-1. -> sair)'),nl,
-    read(NPiece), verificaFim(NPiece),nl,
-    write('-> orientacao? (0 - hor, 1 - vert, 2 - hor switch, 3 - vert switch) (-1. -> sair)'),nl,
-    read(Or),  verificaFim(Or), nl,
-    write('-> onde? (-1. -> sair)'),nl,
-    read(BuffPlace), verificaFim(BuffPlace), nl, name(BuffPlace,[H|T]),
-    Line is H-96,
-    aToN(T,Column),
-    getPiecePlayer(CPlayer,P1,P2,NPiece,Piece,X),
+joga(_Board-_CPlayer-_P1-_P2,-1,_).    % quit
+joga(_Board-_CPlayer-_P1-_P2,1,_) :- write('O PLAYER 1 GANHOU O JOGO!!'),nl.     % ganha 1
+joga(_Board-_CPlayer-_P1-_P2,2,_) :- write('O PLAYER 2 GANHOU O JOGO!!'),nl.     % ganha 2
+joga(Board-CPlayer-P1-P2,0,0) :-          %HvsH  
+	jogadahumana(Board-CPlayer-P1-P2,NBoard-NCPlayer-NP1-NP2,_),
+	verificaGanha(NP1,NP2,Flag),
+	joga(NBoard-NCPlayer-NP1-NP2,Flag,0).
+joga(Board-CPlayer-P1-P2,0,1) :-          %HvsC  
+	jogadahumana(Board-CPlayer-P1-P2,NBoard-NCPlayer-NP1-NP2,XY),
+	verificaGanha(NP1,NP2,Flag),
+	Flag2 is XY + 1,
+	joga(NBoard-NCPlayer-NP1-NP2,Flag,Flag2).
+joga(Board-CPlayer-P1-P2,0,2) :-          %HvsC  
+	jogadacpu(Board-CPlayer-P1-P2,NBoard-NCPlayer-NP1-NP2),
+	verificaGanha(NP1,NP2,Flag),
+	joga(NBoard-NCPlayer-NP1-NP2,Flag,1).
+joga(Board-CPlayer-P1-P2,0,3) :-          %CvsC  
+	jogadacpu(Board-CPlayer-P1-P2,NBoard-NCPlayer-NP1-NP2),
+	verificaGanha(NP1,NP2,Flag),
+	joga(NBoard-NCPlayer-NP1-NP2,Flag,3).
+	
     
-    getOr(Piece,Or,NnPiece, NOr),
-    verifyPlay(Board,Line,Column,NnPiece,NOr,Count,Y),
-    XY is X/\Y,
-    verEmLista(CPlayer,P1,P2,Piece,P11,P22,XY),
-    
-    putPiece(Board,Line,Column,NnPiece,NOr,Nb,XY),
-    checkBoardSize1(Nb,Nnb),
-    player(XY,CPlayer,NPlayer,Count),
-    verificaGanha(P11,P22,Flag),
-    joga(Nnb, NPlayer, P11, P22,Flag).
-    
-jogadahumana(Board, CPlayer, P1, P2,0) :-
+jogadahumana(Board-CPlayer-P1-P2,NBoard-NCPlayer-NP1-NP2,XY) :-
 	printgame(Board-P1-P2-CPlayer), nl,
 	verifyNStackplay(Board,CPlayer,P1,P2,Count),
-	write('Jogadas de stack possiveis '),write(Count),nl,
-	write('-> qual a peca que queres jogar? (-1. -> sair)'),nl,
+	write('Jogadas de stack possiveis - '),write(Count),nl,
+	write('-> qual a peca que queres jogar? (-1. -> sair)'),nl,nl,
 	read(NPiece), verificaFim(NPiece),nl,
 	write('-> orientacao? (0 - hor, 1 - vert, 2 - hor switch, 3 - vert switch) (-1. -> sair)'),nl,
 	read(Or),  verificaFim(Or), nl,
@@ -278,35 +297,30 @@ jogadahumana(Board, CPlayer, P1, P2,0) :-
 	getOr(Piece,Or,NnPiece, NOr),
 	verifyPlay(Board,Line,Column,NnPiece,NOr,Count,Y),
 	XY is X/\Y,
-	verEmLista(CPlayer,P1,P2,Piece,P11,P22,XY), 
+	verEmLista(CPlayer,P1,P2,Piece,NP1,NP2,XY), 
 	putPiece(Board,Line,Column,NnPiece,NOr,Nb,XY),
-	checkBoardSize1(Nb,Nnb),
-	player(XY,CPlayer,NPlayer,Count),
-	verificaGanha(P11,P22,Flag),
-	joga(Nnb, NPlayer, P11, P22,Flag).
+	checkBoardSize1(Nb,NBoard),
+	player(XY,CPlayer,NCPlayer,Count),
+	printjogada(Line,Column,NnPiece,NOr).
     
     
-jogadacpu(Board, CPlayer, P1, P2,0) :- 
+jogadacpu(Board-CPlayer-P1-P2,NBoard-NCPlayer-NP1-NP2) :- 
 	printgame(Board-P1-P2-CPlayer), nl,
 	verifyNStackplay(Board,CPlayer,P1,P2,Count),
-   	write('Jogadas de stack possiveis '),write(Count),nl,
-   	write('CPU Playing'),nl,
+   	write('Jogadas de stack possiveis - '),write(Count),nl,nl,
+   	write('CPU Playing'),nl,nl,
    	getCurrentPlayer(CPlayer,P1,P2,CP),
    	generatePlay(Board,L,C,P,Or,CP,Count),
    	verEmLista(CPlayer,P1,P2,P,NP1,NP2,1),
    	putPiece(Board,L,C,P,Or,Nb,1),
-   	checkBoardSize1(Nb,Nnb),
-   	player(1,CPlayer,NPlayer,Count),
-   	verificaGanha(NP1,NP2,Flag),
-   	read(NPiece),
-   	joga(Nnb, NPlayer, NP1, NP2,Flag).
+   	checkBoardSize1(Nb,NBoard),
+   	player(1,CPlayer,NCPlayer,Count),
+   	printjogada(L,C,P,Or),
+   	write('Introduz 1. para continuar'),nl,
+   	read(_).
 	
-verificaGanha([],_L2,1).
-verificaGanha(_L1,[],2).
-verificaGanha(_,_,0).
 
-verificaFim(-1) :- !,break.
-verificaFim(_).
+%%%%GETS%%%%
 
 getCurrentPlayer(1,L,_,L).
 getCurrentPlayer(2,_,L,L).
@@ -320,12 +334,12 @@ getCell(Board,Line,Column,Cell) :-
 	append(C1,[Cell|_T2],H).
 
 %getOr(Piece,Or,NPiece,NOr).
-getOr(Piece,0,Piece,0).                         %%%%%%%%%%%%%
+getOr(Piece,0,Piece,0).                         
 getOr(Piece,1,Piece,1).
 getOr(Piece,2,NPiece,0) :- rotatePiece(Piece, NPiece).
 getOr(Piece,3,NPiece,1) :- rotatePiece(Piece, NPiece).
 
-% getPiecePlayer(Pl,L1,L2,X,Piece)              %%%%%%%%%%%%%%%%%
+% getPiecePlayer(Pl,L1,L2,X,Piece)              
 getPiecePlayer(1,L1,_L2,X,Piece,1) :-
     X > 0,
     X1 is X - 1,
@@ -358,7 +372,18 @@ delete_one(X,L,L1) :-                           %%%%%%%% AULA PRATICA - DELETE O
     append(A,[X|B],L),
     append(A,B,L1).
 
-%verEmLista(CP,L1,L2,E,L,1,L11,L22)             %%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%Verifications + Changing Board functions %%%%%%%%%%
+verificaGanha([],_L2,1).
+verificaGanha(_L1,[],2).
+verificaGanha(_,_,0).
+
+verificaFim(-1) :- !,break.
+verificaFim(_).
+
+
+
+%verEmLista(CP,L1,L2,E,L,1,L11,L22)            
 verEmLista(1,L1,L2,E,L,L2,1) :- delete_one(E,L1,L).   
 verEmLista(2,L1,L2,E,L1,L,1) :- delete_one(E,L2,L).
 verEmLista(1,L1,L2,E,L,L2,1) :- rotatePiece(E,NP),delete_one(NP,L1,L).   
@@ -382,6 +407,7 @@ aToN([H|T],Temp,Final):-
         
 aToN(T,Final):- 
 	aToN(T,0,Final).
+
 
 generateEmptyLine(L,0,L).
 generateEmptyLine(L,X,NewL) :- 
@@ -467,7 +493,7 @@ checkBoardSize4([H|T],NewBoard):-
 	checkBoardSize4(NewBoard1,NewBoard).
 
 	
-verifyPlay([H|T],Line,Column,Piece,Orientation,0,1) :- %%Type expand%%
+verifyPlay([H|T],Line,Column,_Piece,Orientation,0,1) :- %%Type expand%%
 	length([H|T],X),
 	Line < X,
 	Line > 0,
@@ -494,7 +520,7 @@ verifyHelper(Board,Piece,Line,Column,Orientation,1) :-
 verifyHelper(_,_,_,_,_,0).
 
 
-verifyNStackplay(Board,Piece,Line,Column,Count,Count) :-
+verifyNStackplay(Board,_Piece,Line,_Column,Count,Count) :-
 	length(Board,Y),
 	Line > Y.
 verifyNStackplay([H|T],Piece,Line,Column,TCount,Count) :-
@@ -570,7 +596,7 @@ verifyExpand(Board,Line,Column,Orientation,1) :-
 	 Z =:= Orientation.
 verifyExpand(_,_,_,_,0).
 	
-%verifyExpandplay(Board,Line,Column,Piece,Orientation)                  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%verifyExpandplay(Board,Line,Column,Piece,Orientation)                
 verifyExpandplay(Board,Line,Column,Orientation) :-
      	Orientation =:= 0,
 	getCell(Board,Line,Column,Cell),
@@ -725,7 +751,7 @@ generateStackPlay1(Board,TLine,TColumn,TPiece,TOrientation,Line,Column,Piece,Ori
 	Count < 2,
 	TTColumn is TColumn + 1,
 	generateStackPlay1(Board,TLine,TTColumn,TPiece,TOrientation,Line,Column,Piece,Orientation,Count,Result).
-generateStackPlay1(_,_,_,_,_,_Line,_Column,_Piece,_Orientation,_,0) :- write('Cheguei'),nl.
+generateStackPlay1(_,_,_,_,_,_Line,_Column,_Piece,_Orientation,_,0).
 
 
 generateStackPlay2(_Board,Line,Column,Piece,Orientation,Line,Column,Piece,Orientation,[_H|_T],1).
