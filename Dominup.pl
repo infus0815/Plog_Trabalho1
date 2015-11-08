@@ -17,7 +17,14 @@ barra :- put_code(124).
 
 printlinenumber(0,_).
 printlinenumber(X,Y) :- 
+	Y < 10,
 	write('  '),write(Y),write('   '),
+	X1 is X - 1,
+	Y1 is Y + 1,
+	printlinenumber(X1,Y1).
+printlinenumber(X,Y) :- 
+	Y >= 10,
+	write(' '),write(Y),write('   '),
 	X1 is X - 1,
 	Y1 is Y + 1,
 	printlinenumber(X1,Y1).
@@ -233,17 +240,6 @@ joga(_Board, _CPlayer, _P1, _P2,2) :- write('O PLAYER 2 GANHOU O JOGO!!').     %
 joga(Board, CPlayer, P1, P2,0) :-            
     printgame(Board-P1-P2-CPlayer), nl,
     verifyNStackplay(Board,CPlayer,P1,P2,Count),
-    
-    
-    
-    generatePlay(Board,Testelinha,Testecoluna,Testepiece,Testeorientation,P1,Count),
-    write('Linha '),write(Testelinha),nl,
-    write('Testecoluna '),write(Testecoluna),nl,
-    write('Testepiece '),write(Testepiece),nl,
-    write('Testeorientation '),write(Testeorientation),nl,
-    
-    
-    
     write('Jogadas de stack possiveis '),write(Count),nl,
     write('-> qual a peca que queres jogar? (-1. -> sair)'),nl,
     read(NPiece), verificaFim(NPiece),nl,
@@ -265,6 +261,45 @@ joga(Board, CPlayer, P1, P2,0) :-
     player(XY,CPlayer,NPlayer,Count),
     verificaGanha(P11,P22,Flag),
     joga(Nnb, NPlayer, P11, P22,Flag).
+    
+jogadahumana(Board, CPlayer, P1, P2,0) :-
+	printgame(Board-P1-P2-CPlayer), nl,
+	verifyNStackplay(Board,CPlayer,P1,P2,Count),
+	write('Jogadas de stack possiveis '),write(Count),nl,
+	write('-> qual a peca que queres jogar? (-1. -> sair)'),nl,
+	read(NPiece), verificaFim(NPiece),nl,
+	write('-> orientacao? (0 - hor, 1 - vert, 2 - hor switch, 3 - vert switch) (-1. -> sair)'),nl,
+	read(Or),  verificaFim(Or), nl,
+	write('-> onde? (-1. -> sair)'),nl,
+	read(BuffPlace), verificaFim(BuffPlace), nl, name(BuffPlace,[H|T]),
+	Line is H-96,
+	aToN(T,Column),
+	getPiecePlayer(CPlayer,P1,P2,NPiece,Piece,X),
+	getOr(Piece,Or,NnPiece, NOr),
+	verifyPlay(Board,Line,Column,NnPiece,NOr,Count,Y),
+	XY is X/\Y,
+	verEmLista(CPlayer,P1,P2,Piece,P11,P22,XY), 
+	putPiece(Board,Line,Column,NnPiece,NOr,Nb,XY),
+	checkBoardSize1(Nb,Nnb),
+	player(XY,CPlayer,NPlayer,Count),
+	verificaGanha(P11,P22,Flag),
+	joga(Nnb, NPlayer, P11, P22,Flag).
+    
+    
+jogadacpu(Board, CPlayer, P1, P2,0) :- 
+	printgame(Board-P1-P2-CPlayer), nl,
+	verifyNStackplay(Board,CPlayer,P1,P2,Count),
+   	write('Jogadas de stack possiveis '),write(Count),nl,
+   	write('CPU Playing'),nl,
+   	getCurrentPlayer(CPlayer,P1,P2,CP),
+   	generatePlay(Board,L,C,P,Or,CP,Count),
+   	verEmLista(CPlayer,P1,P2,P,NP1,NP2,1),
+   	putPiece(Board,L,C,P,Or,Nb,1),
+   	checkBoardSize1(Nb,Nnb),
+   	player(1,CPlayer,NPlayer,Count),
+   	verificaGanha(NP1,NP2,Flag),
+   	read(NPiece),
+   	joga(Nnb, NPlayer, NP1, NP2,Flag).
 	
 verificaGanha([],_L2,1).
 verificaGanha(_L1,[],2).
@@ -273,7 +308,8 @@ verificaGanha(_,_,0).
 verificaFim(-1) :- !,break.
 verificaFim(_).
 
-
+getCurrentPlayer(1,L,_,L).
+getCurrentPlayer(2,_,L,L).
 
 getCell(Board,Line,Column,Cell) :- 
 	Line1 is Line - 1,
@@ -656,7 +692,7 @@ generatePlay(Board,Line,Column,Piece,Orientation,Plist,_) :-
 
 	
 
-generateStackPlay1(Board,Line,Column,Piece,Orientation,Line,Column,Piece,Orientation,_Count,1) :- 
+generateStackPlay1(Board,Line,Column,Piece,Orientation,Line,Column,Piece,Orientation,_,1) :- 
 	verifyStackplay(Board,Line,Column,Piece,Orientation).
 generateStackPlay1(Board,TLine,_TColumn,TPiece,TOrientation,Line,Column,Piece,Orientation,Count,Result) :-
 	Count < 2,
@@ -668,7 +704,6 @@ generateStackPlay1(Board,TLine,_TColumn,TPiece,TOrientation,Line,Column,Piece,Or
 	TTOrientation is 0,
 	rotatePiece(TPiece,TTPiece),
 	NCount is Count + 1,
-	write(NCount),nl,
 	generateStackPlay1(Board,TTLine,TTColumn,TTPiece,TTOrientation,Line,Column,Piece,Orientation,NCount,Result).
 generateStackPlay1(Board,TLine,_TColumn,TPiece,TOrientation,Line,Column,Piece,Orientation,Count,Result) :-
 	Count < 2,
@@ -690,16 +725,17 @@ generateStackPlay1(Board,TLine,TColumn,TPiece,TOrientation,Line,Column,Piece,Ori
 	Count < 2,
 	TTColumn is TColumn + 1,
 	generateStackPlay1(Board,TLine,TTColumn,TPiece,TOrientation,Line,Column,Piece,Orientation,Count,Result).
-generateStackPlay1(_,_,_,_,_,_,_,_,_,_,0) :- write('Cheguei').
+generateStackPlay1(_,_,_,_,_,_Line,_Column,_Piece,_Orientation,_,0) :- write('Cheguei'),nl.
 
 
-generateStackPlay(Board,Line,Column,Piece,Orientation,[H|_T]) :- 
-	generateStackPlay1(Board,1,1,H,0,Line,Column,Piece,Orientation,0,1).
-generateStackPlay(Board,Line,Column,Piece,Orientation,[H|T]) :- 
-	generateStackPlay1(Board,1,1,H,0,_,_,_,_,0,0),
+generateStackPlay2(_Board,Line,Column,Piece,Orientation,Line,Column,Piece,Orientation,[_H|_T],1).
+generateStackPlay2(Board,Line,Column,Piece,Orientation,_NLine,_NColumn,_NPiece,_NOrientation,[_H|T],0) :- 
 	generateStackPlay(Board,Line,Column,Piece,Orientation,T).
-	
 
+generateStackPlay(Board,Line,Column,Piece,Orientation,[H|T]) :- 
+	generateStackPlay1(Board,1,1,H,0,NLine,NColumn,NPiece,NOrientation,0,Result),
+	generateStackPlay2(Board,Line,Column,Piece,Orientation,NLine,NColumn,NPiece,NOrientation,[H|T],Result).
+	
 
 
 
