@@ -658,7 +658,6 @@ generatePlay(Board,Line,Column,Piece,Orientation,Plist,_) :-
 
 generateStackPlay1(Board,Line,Column,Piece,Orientation,Line,Column,Piece,Orientation,_Count,1) :- 
 	verifyStackplay(Board,Line,Column,Piece,Orientation).
-generateStackPlay1(_,_,_,_,_,_,_,_,_,Count,0) :- Count == 2,write('Cheguei').
 generateStackPlay1(Board,TLine,_TColumn,TPiece,TOrientation,Line,Column,Piece,Orientation,Count,Result) :-
 	Count < 2,
 	TOrientation =:= 1,
@@ -691,14 +690,13 @@ generateStackPlay1(Board,TLine,TColumn,TPiece,TOrientation,Line,Column,Piece,Ori
 	Count < 2,
 	TTColumn is TColumn + 1,
 	generateStackPlay1(Board,TLine,TTColumn,TPiece,TOrientation,Line,Column,Piece,Orientation,Count,Result).
-
+generateStackPlay1(_,_,_,_,_,_,_,_,_,_,0) :- write('Cheguei').
 
 
 generateStackPlay(Board,Line,Column,Piece,Orientation,[H|_T]) :- 
-	generateStackPlay1(Board,1,1,H,0,Line,Column,Piece,Orientation,0,1),
-	write(Line),nl,write(Column),nl,write(Piece),nl,write(Orientation),nl.
-generateStackPlay(Board,Line,Column,Piece,Orientation,[_H|T]) :-
-	write('Cheguei'),
+	generateStackPlay1(Board,1,1,H,0,Line,Column,Piece,Orientation,0,1).
+generateStackPlay(Board,Line,Column,Piece,Orientation,[H|T]) :- 
+	generateStackPlay1(Board,1,1,H,0,_,_,_,_,0,0),
 	generateStackPlay(Board,Line,Column,Piece,Orientation,T).
 	
 
