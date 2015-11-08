@@ -210,7 +210,7 @@ startgame(B1,L1,L2,2) :-
         verEmLista(2,L1,L2,Piece,P11,P22,X),
         putPiece(B1,Line,Column,Piece,0,Nb,X),
 		checkBoardSize1(Nb,NNb),
-        player(X,2,NPlayer),
+        player(X,2,NPlayer,0),
         joga(NNb,NPlayer,P11,P22,0).
 startgame(B1,L1,L2,_) :-
         printgame(B1-L1-L2-2),
@@ -224,7 +224,7 @@ startgame(B1,L1,L2,_) :-
         verEmLista(2,L1,L2,Piece,P11,P22,X),
         putPiece(B1,Line,Column,Piece,Or,Nb,X),
 		checkBoardSize1(Nb,NNb),
-        player(X,2,NPlayer),
+        player(X,2,NPlayer,0),
         joga(NNb,NPlayer,P11,P22,0).
 
 joga(_Board, _CPlayer, _P1, _P2,-1).    % quit
@@ -233,6 +233,17 @@ joga(_Board, _CPlayer, _P1, _P2,2) :- write('O PLAYER 2 GANHOU O JOGO!!').     %
 joga(Board, CPlayer, P1, P2,0) :-            
     printgame(Board-P1-P2-CPlayer), nl,
     verifyNStackplay(Board,CPlayer,P1,P2,Count),
+    
+    
+    
+    generatePlay(Board,Testelinha,Testecoluna,Testepiece,Testeorientation,P1,Count),
+    write('Linha '),write(Testelinha),nl,
+    write('Testecoluna '),write(Testecoluna),nl,
+    write('Testepiece '),write(Testepiece),nl,
+    write('Testeorientation '),write(Testeorientation),nl,
+    
+    
+    
     write('Jogadas de stack possiveis '),write(Count),nl,
     write('-> qual a peca que queres jogar? (-1. -> sair)'),nl,
     read(NPiece), verificaFim(NPiece),nl,
@@ -314,6 +325,8 @@ delete_one(X,L,L1) :-                           %%%%%%%% AULA PRATICA - DELETE O
 %verEmLista(CP,L1,L2,E,L,1,L11,L22)             %%%%%%%%%%%%%%%%%
 verEmLista(1,L1,L2,E,L,L2,1) :- delete_one(E,L1,L).   
 verEmLista(2,L1,L2,E,L1,L,1) :- delete_one(E,L2,L).
+verEmLista(1,L1,L2,E,L,L2,1) :- rotatePiece(E,NP),delete_one(NP,L1,L).   
+verEmLista(2,L1,L2,E,L1,L,1) :- rotatePiece(E,NP),delete_one(NP,L2,L).
 verEmLista(_,L1,L2,_,L1,L2,0).
 
 
@@ -469,14 +482,14 @@ verifyNStackplay(Board,Piece,Line,Column,TCount,Count) :-
 	
 %verifynStackplay(Board,CPlayer,P1,_P2,Count)
 verifyNStackplay(_,1,[],_P2,0).
-verifyNStackplay(Board,1,[H|T],_P2,Count) :- 
+verifyNStackplay(Board,1,[H|T],_,Count) :- 
 	verifyNStackplay(Board,H,1,1,0,TCount),
-	verifyNStackplay(Board,1,T,_P2,NCount),
+	verifyNStackplay(Board,1,T,_,NCount),
 	Count is TCount + NCount.
 verifyNStackplay(_,2,_P1,[],0).
-verifyNStackplay(Board,2,_P1,[H|T],Count) :- 
+verifyNStackplay(Board,2,_,[H|T],Count) :- 
 	verifyNStackplay(Board,H,1,1,0,TCount),
-	verifyNStackplay(Board,2,_P1,T,NCount),
+	verifyNStackplay(Board,2,_,T,NCount),
 	Count is TCount + NCount.
 	
 	
@@ -632,4 +645,86 @@ putPiece(Board,Line,Column,Piece,Orientation,NewBoard,1) :-
 	append(L3,[[NewId2,V2,NewH2]|L4],NewM),
 	append(B1,[NewL,NewM|B2],NewBoard).
 
+
+
+%%%CPU%%%%
+generatePlay(Board,Line,Column,Piece,Orientation,Plist,0) :- 
+	generateExpandPlay(Board,Line,Column,Piece,Orientation,Plist).
+
+generatePlay(Board,Line,Column,Piece,Orientation,Plist,_) :- 
+	generateStackPlay(Board,Line,Column,Piece,Orientation,Plist).
+
+	
+
+generateStackPlay1(Board,Line,Column,Piece,Orientation,Line,Column,Piece,Orientation,_Count,1) :- 
+	verifyStackplay(Board,Line,Column,Piece,Orientation).
+generateStackPlay1(_,_,_,_,_,_,_,_,_,Count,0) :- Count == 2,write('Cheguei').
+generateStackPlay1(Board,TLine,_TColumn,TPiece,TOrientation,Line,Column,Piece,Orientation,Count,Result) :-
+	Count < 2,
+	TOrientation =:= 1,
+	length(Board,Size),
+	TLine > Size,
+	TTLine is 1,
+	TTColumn is 1,
+	TTOrientation is 0,
+	rotatePiece(TPiece,TTPiece),
+	NCount is Count + 1,
+	write(NCount),nl,
+	generateStackPlay1(Board,TTLine,TTColumn,TTPiece,TTOrientation,Line,Column,Piece,Orientation,NCount,Result).
+generateStackPlay1(Board,TLine,_TColumn,TPiece,TOrientation,Line,Column,Piece,Orientation,Count,Result) :-
+	Count < 2,
+	TOrientation =:= 0,
+	length(Board,Size),
+	TLine > Size,
+	TTLine is 1,
+	TTColumn is 1,
+	TTOrientation is TOrientation + 1,
+	generateStackPlay1(Board,TTLine,TTColumn,TPiece,TTOrientation,Line,Column,Piece,Orientation,Count,Result).
+generateStackPlay1([H|T],TLine,TColumn,TPiece,TOrientation,Line,Column,Piece,Orientation,Count,Result) :-
+	Count < 2,
+	length(H,Size),
+	TColumn > Size,
+	TTLine is TLine + 1,
+	TTColumn is 1,
+	generateStackPlay1([H|T],TTLine,TTColumn,TPiece,TOrientation,Line,Column,Piece,Orientation,Count,Result).
+generateStackPlay1(Board,TLine,TColumn,TPiece,TOrientation,Line,Column,Piece,Orientation,Count,Result) :-
+	Count < 2,
+	TTColumn is TColumn + 1,
+	generateStackPlay1(Board,TLine,TTColumn,TPiece,TOrientation,Line,Column,Piece,Orientation,Count,Result).
+
+
+
+generateStackPlay(Board,Line,Column,Piece,Orientation,[H|_T]) :- 
+	generateStackPlay1(Board,1,1,H,0,Line,Column,Piece,Orientation,0,1),
+	write(Line),nl,write(Column),nl,write(Piece),nl,write(Orientation),nl.
+generateStackPlay(Board,Line,Column,Piece,Orientation,[_H|T]) :-
+	write('Cheguei'),
+	generateStackPlay(Board,Line,Column,Piece,Orientation,T).
+	
+
+
+
+
+
+generateExpandPlay(Board,Line,Column,Piece,Orientation,Line,Column,Piece,Orientation) :- 
+	verifyExpandplay(Board,Line,Column,Orientation).	
+generateExpandPlay(Board,TLine,_TColumn,TPiece,TOrientation,Line,Column,Piece,Orientation) :-
+	TOrientation =:= 0,
+	length(Board,Size),
+	TLine > Size,
+	TTLine is 1,
+	TTColumn is 1,
+	TTOrientation is TOrientation + 1,
+	generateExpandPlay(Board,TTLine,TTColumn,TPiece,TTOrientation,Line,Column,Piece,Orientation).
+generateExpandPlay([H|T],TLine,TColumn,TPiece,TOrientation,Line,Column,Piece,Orientation) :-
+	length(H,Size),
+	TColumn > Size,
+	TTLine is TLine +1,
+	TTColumn is 1,
+	generateExpandPlay([H|T],TTLine,TTColumn,TPiece,TOrientation,Line,Column,Piece,Orientation).
+generateExpandPlay(Board,TLine,TColumn,TPiece,TOrientation,Line,Column,Piece,Orientation) :-
+	TTColumn is TColumn + 1,
+	generateExpandPlay(Board,TLine,TTColumn,TPiece,TOrientation,Line,Column,Piece,Orientation).
+generateExpandPlay(Board,Line,Column,Piece,Orientation,[H|_T]) :- 
+	generateExpandPlay(Board,1,1,H,0,Line,Column,Piece,Orientation).
 
